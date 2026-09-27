@@ -4,9 +4,9 @@ include('../conn/conn.php');
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-require 'PHPMailer/src/Exception.php';
-require 'PHPMailer/src/PHPMailer.php';
-require 'PHPMailer/src/SMTP.php';
+require_once __DIR__ . '/phpmailer/src/Exception.php';
+require_once __DIR__ . '/phpmailer/src/PHPMailer.php';
+require_once __DIR__ . '/phpmailer/src/SMTP.php';
 
 $mail = new PHPMailer(true);
 
@@ -17,7 +17,7 @@ if (isset($_POST['register'])) {
         $contactNumber = $_POST['contact_number'];
         $email = $_POST['email'];
         $username = $_POST['username'];
-        $password = $_POST['password'];
+        $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
         
         $conn->beginTransaction();
     
@@ -41,19 +41,23 @@ if (isset($_POST['register'])) {
             $insertStmt->bindParam(':verification_code', $verificationCode, PDO::PARAM_INT);
             $insertStmt->execute();
     
-            //Server settings
-            $mail->isSMTP(); 
-            $mail->Host       = 'smtp.gmail.com'; 
-            $mail->SMTPAuth   = true; 
-            $mail->Username   = 'lorem.ipsum.sample.email@gmail.com';
-            $mail->Password   = 'novtycchbrhfyddx';
-            $mail->SMTPSecure = 'ssl';
-            $mail->Port       = 465;                                    
+            $mailConfig = $config['mail'];
+            if (empty($mailConfig['host']) || empty($mailConfig['username']) || empty($mailConfig['password']) || empty($mailConfig['from_email'])) {
+                throw new RuntimeException('Email delivery is not configured.');
+            }
+
+            $mail->isSMTP();
+            $mail->Host = $mailConfig['host'];
+            $mail->SMTPAuth = true;
+            $mail->Username = $mailConfig['username'];
+            $mail->Password = $mailConfig['password'];
+            $mail->SMTPSecure = $mailConfig['encryption'];
+            $mail->Port = $mailConfig['port'];
         
             //Recipients
-            $mail->setFrom('lorem.ipsum.sample.email@gmail.com', 'Lorem Ipsum');
+            $mail->setFrom($mailConfig['from_email'], $mailConfig['from_name']);
             $mail->addAddress($email);   
-            $mail->addReplyTo('lorem.ipsum.sample.email@gmail.com', 'Lorem Ipsum'); 
+            $mail->addReplyTo($mailConfig['from_email'], $mailConfig['from_name']);
         
             //Content
             $mail->isHTML(true);  
@@ -72,7 +76,7 @@ if (isset($_POST['register'])) {
             <script>
             
                 alert('Check your email for verification code.');
-                window.location.href = 'http://localhost/klein/verification.php';
+                window.location.href = '../verification.php';
             </script>
             ";
 
@@ -81,13 +85,16 @@ if (isset($_POST['register'])) {
             echo "
             <script>
                 alert('User Already Exists');
-                window.location.href = 'http://localhost/klein/klaynHCI.php';
+                window.location.href = '../klaynHCI.php';
             </script>
             ";
         }
-    } catch (PDOException $e) {
-        $conn->rollBack();
-        echo "Error: " . $e->getMessage();
+    } catch (Throwable $e) {
+        if ($conn->inTransaction()) {
+            $conn->rollBack();
+        }
+        error_log($e->getMessage());
+        echo "<script>alert('Registration failed. Check the database and email settings.'); window.location.href = '../klaynHCI.php';</script>";
     }
 }
 
@@ -108,7 +115,7 @@ if (isset($_POST['verify'])) {
             echo "
             <script>
                 alert('Registered Successfully.');
-                window.location.href = 'http://localhost/klein/klaynHCI.php';
+                window.location.href = '../klaynHCI.php';
             </script>
             ";
         } else {
@@ -119,7 +126,7 @@ if (isset($_POST['verify'])) {
             echo "
             <script>
                 alert('Incorrect Verification Code. Try Again.');
-                window.location.href = 'http://localhost/klein/klaynHCI.php';
+                window.location.href = '../klaynHCI.php';
             </script>
             ";
         }

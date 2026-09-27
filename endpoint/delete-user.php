@@ -16,14 +16,14 @@ if (isset($_GET['user'])) {
             echo "
             <script>
                 alert('User Deleted Successfully');
-                window.location.href = 'http://localhost/klein/klaynplaylist.php';
+                window.location.href = '../klaynplaylist.html';
             </script>
             ";
         } else {
             echo "
             <script>
                 alert('User to Delete Subject');
-                window.location.href = 'http://localhost/klein/klaynplaylist.php';
+                window.location.href = '../klaynplaylist.html';
             </script>
             ";
         }

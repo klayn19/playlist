@@ -39,13 +39,6 @@ CREATE TABLE `tbl_user` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `tbl_user`
---
-
-INSERT INTO `tbl_user` (`tbl_user_id`, `first_name`, `last_name`, `contact_number`, `email`, `username`, `password`, `verification_code`) VALUES
-(1, 'Lorem', 'Ipsum', 2147483647, 'lorem.ipsum.sample.email@gail.com', 'admin', 'admin', 965225);
-
---
 -- Indexes for dumped tables
 --
 

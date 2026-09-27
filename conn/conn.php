@@ -1,15 +1,19 @@
-<?php 
+<?php
 
-$servername = "localhost";
-$username = "root";
-$password = "";
-$db = "klein";
+$config = require __DIR__ . '/config.php';
+$database = $config['database'];
 
 try {
-    $conn = new PDO("mysql:host=$servername;dbname=$db", $username, $password);
+    $conn = new PDO(
+        'mysql:host=' . $database['host'] . ';dbname=' . $database['name'] . ';charset=utf8mb4',
+        $database['username'],
+        $database['password']
+    );
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
-    echo "Failed " . $e->getMessage();
+    error_log($e->getMessage());
+    http_response_code(500);
+    exit('Database connection failed. Check conn/config.php.');
 }
 
 ?>

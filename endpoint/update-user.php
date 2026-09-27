@@ -7,7 +7,7 @@ $updateLastName = $_POST['last_name'];
 $updateContactNumber = $_POST['contact_number'];
 $updateEmail = $_POST['email'];
 $updateUsername = $_POST['username'];
-$updatePassword = $_POST['password'];
+$updatePassword = password_hash($_POST['password'], PASSWORD_DEFAULT);
 
 try {
     $stmt = $conn->prepare("SELECT `first_name`, `last_name` FROM `tbl_user` WHERE `first_name` = :first_name AND `last_name` = :last_name");
@@ -33,7 +33,7 @@ try {
         echo "
         <script>
             alert('Updated Successfully');
-            window.location.href = 'http://localhost/user-registration-and-login-system/klaynplaylist.php';
+            window.location.href = '../klaynplaylist.html';
         </script>
         ";
 
@@ -42,7 +42,7 @@ try {
         echo "
         <script>
             alert('User Already Exist');
-            window.location.href = 'http://localhost/user-registration-and-login-system/klaynHCI.php';
+            window.location.href = '../klaynHCI.php';
         </script>
         ";
     }
