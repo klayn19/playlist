@@ -1,6 +1,9 @@
 <?php
 
-$config = require __DIR__ . '/config.php';
+$localConfigPath = __DIR__ . '/config.local.php';
+$config = is_file($localConfigPath)
+    ? require $localConfigPath
+    : require __DIR__ . '/config.php';
 $database = $config['database'];
 
 try {
@@ -13,7 +16,7 @@ try {
 } catch (PDOException $e) {
     error_log($e->getMessage());
     http_response_code(500);
-    exit('Database connection failed. Check conn/config.php.');
+    exit('Database connection failed. Check the database configuration.');
 }
 
 ?>
